@@ -23,13 +23,13 @@ REQUIRED_PACKAGES = [
 TEST_PACKAGES = []
 
 setup(
-    name="deep-planner",
+    name="astra",
     version="0.1",
-    description="Deep Learning based dose prediction",
+    description="Atomic Surface Transformations for Radiotherapy quality Assurance",
     long_description=readme,
     author="Healthcare Imaging A.I.",
     author_email="amith.kamath@unibe.ch",
-    url="https://github.com/amithjkamath/deep-planner",
+    url="https://github.com/amithjkamath/astra",
     license=license_,
     packages=find_packages(exclude=["test", "docs"]),
     install_requires=REQUIRED_PACKAGES,

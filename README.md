@@ -1,16 +1,16 @@
-deep-planner
+ASTRA
 ==============================
 
-This repository explores the Deep Planner project.
+This repository describes ASTRA: Atomic Surface Transformations for Radiotherapy quality Assurance.
 
-To create a new test set, run the following scripts (in the deep-planner/utils/ folder) in this specific order:
+To create a new test set, run the following scripts (in the astra/utils/ folder) in this specific order:
 1. rtss_to_nifti.py
 2. convert_dose_volume.py
 3. resize_to_standard_dimensions.py
 
 Then train the model using the train.py script (modifying the paths to the data files of course).
 
-and finally, test the model performance using test.py
+and finally, generate the ASTRA sensitivity maps using test_with_perturb.py
 
 Project Organization
 ------------
@@ -31,21 +31,18 @@ Project Organization
     │
     ├── references                              <- Data dictionaries, manuals, and all other explanatory materials.
     │
-    ├── reports                                 <- Generated analysis as HTML, PDF, LaTeX, etc.
+    ├── results                                <- Generated analysis as HTML, PDF, LaTeX, etc.
     │
     ├── requirements.txt                        <- The requirements file for reproducing the analysis environment, e.g.
     │                                              generated with `pip freeze > requirements.txt`
     │
-    ├── deep-planner           <- Source code for use in this project.
-    │   │
-    │   ├── data                                <- Scripts to download or generate data
-    │   │
-    │   ├── model                               <- Classes to define the model architecture and losses.
-    │   │
-    │   ├── utils                               <- Scripts utilities used during data generation or training
-    │   │
-    │   ├── training                            <- Classes to handle network training.
-    │   │
-    │   ├── validation                          <- Classes to evaluate model performance.
-    │   │
-    │   └── visualization                       <- Scripts to create exploratory and results oriented visualizations
+    └── astra           <- Source code for use in this project.
+       │
+       ├── data                                <- Scripts to download or generate data
+       │
+       ├── model                               <- Classes to define the model architecture and losses.
+       │
+       ├── training                            <- Classes to handle network training.
+       │
+       ├── utils                               <- Scripts utilities used during data generation or training
+       └── validation                          <- Classes to evaluate model performance.

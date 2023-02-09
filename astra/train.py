@@ -50,20 +50,6 @@ if __name__ == "__main__":
 
     trainer.setting.max_iter = args.max_iter
 
-    """
-    # For the OpenKBP dataset, these are the entries.
-    list_eval_dirs = [
-        "/home/akamath/Documents/deep-planner/data/processed-kbp/pt_" + str(i)
-        for i in range(161, 201)
-    ]
-    data_paths = {
-        "train": [
-            "/home/akamath/Documents/deep-planner/data/processed-kbp/pt_" + str(i)
-            for i in range(1, 160)
-        ],
-        "val": list_eval_dirs,
-    }
-    """
     list_eval_dirs = [
         "/home/akamath/Documents/deep-planner/data/processed-dldp/DLDP_"
         + str(i).zfill(3)

@@ -92,7 +92,8 @@ def inference_with_perturbation(trainer, list_patient_dirs, save_path, do_TTA=Tr
             if not os.path.exists(save_path + "/" + patient_id):
                 os.mkdir(save_path + "/" + patient_id)
             sitk.WriteImage(
-                prediction_nii, save_path + "/" + patient_id + "/Dose_gt.nii.gz",
+                prediction_nii,
+                save_path + "/" + patient_id + "/Dose_gt.nii.gz",
             )
 
             list_OAR_names = [
@@ -163,9 +164,9 @@ def inference_with_perturbation(trainer, list_patient_dirs, save_path, do_TTA=Tr
 
 if __name__ == "__main__":
 
-    root_dir = "/home/akamath/Documents/deep-planner"
-    model_dir = os.path.join(root_dir, "models/dldp-6")
-    output_dir = os.path.join(root_dir, "results/dldp-perturb")
+    root_dir = "/Users/amithkamath/repo/astra"
+    model_dir = os.path.join(root_dir, "models")
+    output_dir = os.path.join(root_dir, "output_perturb")
     os.makedirs(output_dir, exist_ok=True)
 
     gt_dir = os.path.join(root_dir, "data/processed-dldp")
@@ -206,7 +207,7 @@ if __name__ == "__main__":
         ckpt_file=args.model_path, list_GPU_ids=[args.GPU_id], only_network=True
     )
 
-    for subject_id in range(81, 101):
+    for subject_id in [81, 82]:
 
         # Start inference
         print("\n\n# Start inference !")
