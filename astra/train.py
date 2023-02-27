@@ -9,11 +9,13 @@ import argparse
 
 from data.dataloader_DLDP_C3D import get_loader
 from training.network_trainer import NetworkTrainer
-from model.C3D.model import Model
-from model.C3D.online_evaluation import online_evaluation
-from model.C3D.loss import Loss
+from model.model import Model
+from model.online_evaluation import online_evaluation
+from model.loss import Loss
 
 if __name__ == "__main__":
+
+    repo_root = "/Users/amithkamath/repo/astra/"
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--batch_size", type=int, default=2, help="batch size for training (default: 2)"
@@ -36,9 +38,7 @@ if __name__ == "__main__":
     #  Start training
     trainer = NetworkTrainer()
     trainer.setting.project_name = "C3D"
-    trainer.setting.output_dir = (
-        "/home/akamath/Documents/deep-planner/models/dldp-concave-1"
-    )
+    trainer.setting.output_dir = os.path.join(repo_root, "/models/dldp-test")
     list_GPU_ids = args.list_GPU_ids
 
     trainer.setting.network = Model(
@@ -51,27 +51,15 @@ if __name__ == "__main__":
     trainer.setting.max_iter = args.max_iter
 
     list_eval_dirs = [
-        "/home/akamath/Documents/deep-planner/data/processed-dldp/DLDP_"
-        + str(i).zfill(3)
+        os.path.join(repo_root, "data/processed-dldp/DLDP_") + str(i).zfill(3)
         for i in range(62, 80)
         if i not in [63, 65, 67, 77]  # missing data
     ]
-    list_eval_dirs += [
-        "/home/akamath/Documents/deep-planner/data/processed-dldp/DLDP_"
-        + str(i).zfill(3)
-        for i in range(108, 109)
-    ]
 
     list_train_dirs = [
-        "/home/akamath/Documents/deep-planner/data/processed-dldp/DLDP_"
-        + str(i).zfill(3)
+        os.path.join(repo_root, "data/processed-dldp/DLDP_") + str(i).zfill(3)
         for i in range(1, 62)
         if i != 40  # missing data
-    ]
-    list_train_dirs += [
-        "/home/akamath/Documents/deep-planner/data/processed-dldp/DLDP_"
-        + str(i).zfill(3)
-        for i in range(101, 107)
     ]
 
     data_paths = {
