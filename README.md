@@ -19,8 +19,8 @@ Project Organization
     │   └── train.py              <- Model training script.
     │
     ├── data               <- This folder is empty; reach out for more details.
-    │   ├── processed      <- The final, canonical data sets for modeling.
-    │   └── raw            <- The original, immutable data dump.
+    │   ├── processed
+    │   └── raw
     │
     ├── docs               <- A default Sphinx project; see sphinx-doc.org for details
     │

@@ -1,6 +1,8 @@
 # Data files
-data/*
-models/*
+data/dldp*
+data/processed*
+models/*.pkl
+results/*.avi
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
