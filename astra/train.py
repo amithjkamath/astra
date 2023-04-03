@@ -7,11 +7,11 @@ if os.path.abspath("..") not in sys.path:
 
 import argparse
 
-from data.dataloader_DLDP_C3D import get_loader
-from training.network_trainer import NetworkTrainer
-from model.model import Model
-from model.online_evaluation import online_evaluation
-from model.loss import Loss
+from astra.data.dataloader_DLDP_C3D import get_loader
+from astra.training.network_trainer import NetworkTrainer
+from astra.model.model import Model
+from astra.model.online_evaluation import online_evaluation
+from astra.model.loss import Loss
 
 if __name__ == "__main__":
 

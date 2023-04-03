@@ -3,6 +3,7 @@ data/dldp*
 data/processed*
 models/*.pkl
 results/*.avi
+output_perturb/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

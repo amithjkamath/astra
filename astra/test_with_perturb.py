@@ -10,14 +10,14 @@ from tqdm import tqdm
 if os.path.abspath("..") not in sys.path:
     sys.path.insert(0, os.path.abspath(".."))
 
-from utils.data_utils import (
+from astra.utils.data_utils import (
     read_data,
     pre_processing,
     test_time_augmentation,
     copy_sitk_imageinfo,
 )
-from model.C3D.model import Model
-from training.network_trainer import *
+from astra.model.model import Model
+from astra.training.network_trainer import *
 
 
 def find_boundary_points(volume):
@@ -96,31 +96,17 @@ def inference_with_perturbation(trainer, list_patient_dirs, save_path, do_TTA=Tr
                 save_path + "/" + patient_id + "/Dose_gt.nii.gz",
             )
 
-            list_OAR_names = [
-                "BrainStem",
-                "Chiasm",
-                "Cochlea_L",
-                "Cochlea_R",
-                "Eye_L",
-                "Eye_R",
-                "Hippocampus_L",
-                "Hippocampus_R",
-                "LacrimalGland_L",
-                "LacrimalGland_R",
-                "OpticNerve_L",
-                "OpticNerve_R",
-                "Pituitary",
-            ]
+            list_OAR_names = ["Target"]
 
             for oar in list_OAR_names:
 
-                print("Working on the OAR: ", oar.split("_")[0])
+                print("Working on: ", oar.split("_")[0])
 
                 perturb_prediction = np.zeros_like(gt_prediction)
 
                 point_set = find_boundary_points(dict_images[oar])
 
-                print("Points on surface of OAR: ", len(point_set))
+                print("Points on surface: ", len(point_set))
 
                 # At this stage, do perturbation on the OAR boundary.
                 for point in tqdm(point_set):
