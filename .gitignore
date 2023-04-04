@@ -3,6 +3,7 @@ data/dldp*
 data/processed*
 models/*.pkl
 results/*.avi
+results/*.onnx
 output_perturb/*
 
 # Byte-compiled / optimized / DLL files
