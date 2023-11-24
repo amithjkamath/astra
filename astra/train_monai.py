@@ -7,7 +7,7 @@ if os.path.abspath("..") not in sys.path:
 
 import argparse
 
-from astra.data.dataloader_DLDP_C3D import get_loader
+from astra.data.dataloader import get_loader
 from astra.training.network_trainer import NetworkTrainer
 from astra.model.model import Model
 from astra.model.online_evaluation import online_evaluation

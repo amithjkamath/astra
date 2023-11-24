@@ -7,7 +7,7 @@ if os.path.abspath("..") not in sys.path:
 
 import argparse
 
-from astra.data.dataloader_DLDP_C3D import get_loader
+from astra.data.dataloader import get_loader
 from astra.training.network_trainer import NetworkTrainer
 from astra.model.model import Model
 from astra.model.online_evaluation import online_evaluation
@@ -16,6 +16,9 @@ from astra.model.loss import Loss
 if __name__ == "__main__":
 
     repo_root = "/Users/amithkamath/repo/astra/"
+    data_root = "/Users/amithkamath/data/DLDP/ground_truth_small"
+    model_dir = os.path.join(repo_root, "models", "dldp-small")
+    os.makedirs(model_dir, exist_ok=True)
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--batch_size", type=int, default=2, help="batch size for training (default: 2)"
@@ -24,8 +27,8 @@ if __name__ == "__main__":
         "--list_GPU_ids",
         nargs="+",
         type=int,
-        default=[0],
-        help="list_GPU_ids for training (default: [0])",
+        default=[-1],
+        help="list_GPU_ids for training (default: [-1] for CPU)",
     )
     parser.add_argument(
         "--max_iter",
@@ -38,7 +41,7 @@ if __name__ == "__main__":
     #  Start training
     trainer = NetworkTrainer()
     trainer.setting.project_name = "C3D"
-    trainer.setting.output_dir = os.path.join(repo_root, "/models/dldp-test")
+    trainer.setting.output_dir = model_dir
     list_GPU_ids = args.list_GPU_ids
 
     trainer.setting.network = Model(
@@ -51,13 +54,13 @@ if __name__ == "__main__":
     trainer.setting.max_iter = args.max_iter
 
     list_eval_dirs = [
-        os.path.join(repo_root, "data/processed-dldp/DLDP_") + str(i).zfill(3)
+        os.path.join(data_root, "DLDP_") + str(i).zfill(3)
         for i in range(62, 80)
         if i not in [63, 65, 67, 77]  # missing data
     ]
 
     list_train_dirs = [
-        os.path.join(repo_root, "data/processed-dldp/DLDP_") + str(i).zfill(3)
+        os.path.join(data_root, "DLDP_") + str(i).zfill(3)
         for i in range(1, 62)
         if i != 40  # missing data
     ]

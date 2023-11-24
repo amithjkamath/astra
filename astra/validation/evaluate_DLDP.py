@@ -68,7 +68,7 @@ def get_Dose_score_and_DVH_score(prediction_dir, patient_id, gt_dir):
 
     # Dose dif
     possible_dose_mask_nii = sitk.ReadImage(
-        os.path.join(gt_dir, "DLDP_" + str(patient_id).zfill(3), "Dose_Mask.nii.gz")
+        os.path.join(gt_dir, "DLDP_" + str(patient_id).zfill(3), "Brain.nii.gz")
     )
     possible_dose_mask = sitk.GetArrayFromImage(possible_dose_mask_nii)
     list_dose_dif.append(get_3D_Dose_dif(pred, gt, possible_dose_mask))
@@ -153,7 +153,7 @@ def get_Dose_score_and_DVH_score_per_ROI(prediction_dir, patient_id, gt_dir):
 
     # Dose dif
     possible_dose_mask_nii = sitk.ReadImage(
-        os.path.join(gt_dir, "DLDP_" + str(patient_id).zfill(3), "Dose_Mask.nii.gz")
+        os.path.join(gt_dir, "DLDP_" + str(patient_id).zfill(3), "Brain.nii.gz")
     )
     possible_dose_mask = sitk.GetArrayFromImage(possible_dose_mask_nii)
     list_dose_dif.append(get_3D_Dose_dif(pred, gt, possible_dose_mask))
