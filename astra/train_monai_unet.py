@@ -66,7 +66,7 @@ def trainer(args):
         data_paths,
         train_bs=2,
         val_bs=1,
-        train_num_samples_per_epoch=2 * 500,  # 500 iterations per epoch
+        train_num_samples_per_epoch=2 * 60,
         val_num_samples_per_epoch=1,
         num_works=4,
     )
@@ -74,8 +74,8 @@ def trainer(args):
     # create the model
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = BasicUNet(
-        spatial_dims=2,
-        in_channels=1,
+        spatial_dims=3,
+        in_channels=15,
         out_channels=1,
         features=[32, 64, 128, 256, 512, 32],
     ).to(device)
@@ -94,7 +94,7 @@ def trainer(args):
 
     # start a typical PyTorch training loop
     val_interval = 2  # doing validation every 2 epochs
-    best_metric = -1
+    best_metric = 1e10
     best_metric_epoch = -1
     tic = time.time()
     for epoch in range(args.num_epochs):
@@ -107,12 +107,14 @@ def trainer(args):
             step += 1
             optimizer.zero_grad()
             input_ = list_loader_output[0]
-            target = list_loader_output[1:]
+            target = list_loader_output[1]
+            mask = list_loader_output[2]
 
             # Forward
             output = model(input_.to(device))
 
             # Backward
+            output[mask == 0] = 0
             loss = loss_function(output, target.to(device))
 
             # Used for counting average loss of this epoch
@@ -130,63 +132,41 @@ def trainer(args):
         # validation
         if (epoch + 1) % val_interval == 0:
             model.eval()
-            outputs = defaultdict(list)
-            targets = defaultdict(list)
             with torch.no_grad():
-                val_ssim = list()
-                val_loss = list()
-                for val_data in val_loader:
-                    input, target, mean, std, fname = (
-                        val_data["kspace_masked_ifft"],
-                        val_data["reconstruction_rss"],
-                        val_data["mean"],
-                        val_data["std"],
-                        val_data["kspace_meta_dict"]["filename"],
-                    )
+                val_loss_array = list()
+                for batch_idx, list_loader_output in enumerate(val_loader):
+                    step += 1
+                    optimizer.zero_grad()
+                    input_ = list_loader_output[0]
+                    target = list_loader_output[1]
+                    mask = list_loader_output[2]
 
-                    # iterate through all slices:
-                    slice_dim = (
-                        1  # change this if another dimension is your slice dimension
-                    )
-                    num_slices = input.shape[slice_dim]
-                    for i in range(num_slices):
-                        inp = input[:, i, ...].unsqueeze(slice_dim)
-                        tar = target[:, i, ...].unsqueeze(slice_dim)
-                        output = model(inp.to(device))
+                    # Forward
+                    output = model(input_.to(device))
 
-                        vloss = loss_function(output, tar.to(device))
-                        val_loss.append(vloss.item())
+                    # Backward
+                    output[mask == 0] = 0
 
-                        _std = std[0][i].item()
-                        _mean = mean[0][i].item()
-                        outputs[fname[0]].append(
-                            output.data.cpu().numpy()[0][0] * _std + _mean
-                        )
-                        targets[fname[0]].append(tar.numpy()[0][0] * _std + _mean)
+                    val_loss = loss_function(output, target.to(device))
+                    val_loss_array.append(val_loss.item())
 
-                # compute validation ssims
-                for fname in outputs:
-                    outputs[fname] = np.stack(outputs[fname])
-                    targets[fname] = np.stack(targets[fname])
-                    val_ssim.append(0.0)
-
-                metric = np.mean(val_ssim)
+                metric = np.mean(val_loss_array)
 
                 # save the best checkpoint so far
-                if metric > best_metric:
+                if metric < best_metric:
                     best_metric = metric
                     best_metric_epoch = epoch + 1
                     torch.save(
                         model.state_dict(),
-                        os.path.join(outpath, "unet_mri_reconstruction.pt"),
+                        os.path.join(outpath, "unet_dose_prediction.pt"),
                     )
                     print("saved new best metric model")
                 print(
-                    "current epoch: {} current mean ssim: {:.4f} best mean ssim: {:.4f} at epoch {}".format(
+                    "current epoch: {} current MAE: {:.4f} best MAE: {:.4f} at epoch {}".format(
                         epoch + 1, metric, best_metric, best_metric_epoch
                     )
                 )
-                writer.add_scalar("val_mean_ssim", metric, epoch + 1)
+                writer.add_scalar("val_mae", metric, epoch + 1)
 
     print(
         f"training completed, best_metric: {best_metric:.4f} at epoch: {best_metric_epoch}"
@@ -216,7 +196,7 @@ def main():
         help="experiment name (a folder will be created with this name to store the results)",
     )
 
-    parser.add_argument("--lr", default=0.0001, type=float, help="learning rate")
+    parser.add_argument("--lr", default=0.001, type=float, help="learning rate")
 
     parser.add_argument(
         "--lr_step_size",

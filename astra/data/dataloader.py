@@ -225,17 +225,6 @@ def train_transform(list_images):
         list_interp=(cv2.INTER_NEAREST, cv2.INTER_NEAREST, cv2.INTER_NEAREST),
         p=0.3,
     )
-
-    """
-    # Random translation, but make use the region can receive dose is remained
-    list_images = random_translate(
-        list_images,
-        roi_mask=list_images[2][0, :, :, :],  # the possible dose mask
-        p=0.8,
-        max_shift=20,
-        list_pad_value=[0, 0, 0],
-    )
-    """
     # To torch tensor
     list_images = to_tensor(list_images)
     return list_images
