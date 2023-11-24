@@ -155,7 +155,7 @@ if __name__ == "__main__":
     output_dir = os.path.join(root_dir, "output_perturb")
     os.makedirs(output_dir, exist_ok=True)
 
-    gt_dir = os.path.join(root_dir, "data/processed-dldp")
+    gt_dir = os.path.join("/Users/amithkamath/data/DLDP/ground_truth")
     test_dir = gt_dir  # change this if somewhere else.
 
     if not os.path.exists(model_dir):
@@ -193,7 +193,7 @@ if __name__ == "__main__":
         ckpt_file=args.model_path, list_GPU_ids=[args.GPU_id], only_network=True
     )
 
-    for subject_id in [81, 82]:
+    for subject_id in [81]:
 
         # Start inference
         print("\n\n# Start inference !")

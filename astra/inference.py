@@ -5,16 +5,18 @@ import json
 import argparse
 import numpy as np
 import pandas as pd
+import SimpleITK as sitk
+from tqdm import tqdm
 
-from utils.data_utils import (
+
+from astra.utils.data_utils import (
     read_data,
     pre_processing,
     test_time_augmentation,
     copy_sitk_imageinfo,
 )
-from validation.evaluate_DLDP import *
-from model.C3D.model import Model
-from training.network_trainer import *
+from astra.model.model import Model
+from astra.training.network_trainer import *
 
 if os.path.abspath("..") not in sys.path:
     sys.path.insert(0, os.path.abspath(".."))
@@ -59,14 +61,14 @@ def inference(trainer, list_patient_dirs, save_path, do_TTA=True):
             )
 
 
-if __name__ == "__main__":
+def main():
 
-    root_dir = "/home/akamath/Documents"
-    model_dir = os.path.join(root_dir, "deep-planner/models/dldp-5")
-    output_dir = os.path.join(root_dir, "deep-planner/runs/output-dldp-5")
+    root_dir = "/Users/amithkamath/repo/astra"
+    model_dir = os.path.join(root_dir, "models")
+    output_dir = os.path.join(root_dir, "output_perturb_withTTA")
     os.makedirs(output_dir, exist_ok=True)
 
-    gt_dir = os.path.join(root_dir, "deep-planner/data/processed-dldp")
+    gt_dir = os.path.join("/Users/amithkamath/data/DLDP/ground_truth")
     test_dir = gt_dir  # change this if somewhere else.
 
     if not os.path.exists(model_dir):
@@ -104,10 +106,7 @@ if __name__ == "__main__":
         ckpt_file=args.model_path, list_GPU_ids=[args.GPU_id], only_network=True
     )
 
-    dose_score = []
-    dvh_score = []
-
-    for subject_id in range(81, 101):
+    for subject_id in range(81, 100):
         # Start inference
         print("\n\n# Start inference !")
         list_patient_dirs = [os.path.join(test_dir, "DLDP_" + str(subject_id).zfill(3))]
@@ -118,78 +117,6 @@ if __name__ == "__main__":
             do_TTA=args.TTA,
         )
 
-        # Evaluation
-        print("\n\n# Start evaluation !")
-        Dose_score, DVH_score = get_Dose_score_and_DVH_score_per_ROI(
-            prediction_dir=os.path.join(trainer.setting.output_dir, "Prediction"),
-            patient_id=subject_id,
-            gt_dir=gt_dir,
-        )
 
-        with open(
-            trainer.setting.output_dir
-            + "/Prediction/"
-            + "DLDP_"
-            + str(subject_id).zfill(3)
-            + "/dose_score.json",
-            "w",
-        ) as fp:
-            json.dump(Dose_score, fp)
-
-        dose_df = pd.DataFrame.from_dict(
-            Dose_score["DLDP_" + str(subject_id).zfill(3)], orient="index"
-        )
-        dose_df.to_csv(
-            trainer.setting.output_dir
-            + "/Prediction/"
-            + "DLDP_"
-            + str(subject_id).zfill(3)
-            + "/dose_score.csv"
-        )
-
-        with open(
-            trainer.setting.output_dir
-            + "/Prediction/"
-            + "DLDP_"
-            + str(subject_id).zfill(3)
-            + "/dvh_score.json",
-            "w",
-        ) as fp:
-            json.dump(DVH_score, fp)
-
-        dvh_df = pd.DataFrame.from_dict(
-            DVH_score["DLDP_" + str(subject_id).zfill(3)], orient="index"
-        )
-        dvh_df.to_csv(
-            trainer.setting.output_dir
-            + "/Prediction/"
-            + "DLDP_"
-            + str(subject_id).zfill(3)
-            + "/dvh_score.csv"
-        )
-
-        Dose_score, DVH_score = get_Dose_score_and_DVH_score(
-            prediction_dir=os.path.join(trainer.setting.output_dir, "Prediction"),
-            patient_id=subject_id,
-            gt_dir=gt_dir,
-        )
-
-        dose_score.append(Dose_score)
-        dvh_score.append(DVH_score)
-        print("\n\nDose score is: " + str(Dose_score))
-        print("DVH score is: " + str(DVH_score))
-
-    print(
-        "Mean dose score: "
-        + str(np.mean(dose_score))
-        + " ("
-        + str(np.std(dose_score))
-        + ")"
-    )
-    print(
-        "Mean dvh score: "
-        + str(np.mean(dvh_score))
-        + " ("
-        + str(np.std(dvh_score))
-        + ")"
-    )
+if __name__ == "__main__":
+    main()
