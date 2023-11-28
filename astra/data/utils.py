@@ -101,23 +101,3 @@ def flip_3d(input_, list_axes):
         input_ = input_[:, :, :, ::-1]
 
     return input_
-
-
-def inference(trainer, input_, TTA_mode):
-    list_prediction_B = []
-
-    for list_flip_axes in TTA_mode:
-        # Do Augmentation before forward
-        augmented_input = flip_3d(input_.copy(), list_flip_axes)
-        augmented_input = torch.from_numpy(augmented_input.astype(np.float32))
-        augmented_input = augmented_input.unsqueeze(0).to(trainer.setting.device)
-        [_, prediction_B] = trainer.setting.network(augmented_input)
-
-        # Aug back to original order
-        prediction_B = flip_3d(
-            np.array(prediction_B.cpu().data[0, :, :, :, :]), list_flip_axes
-        )
-
-        list_prediction_B.append(prediction_B[0, :, :, :])
-
-    return np.mean(list_prediction_B, axis=0)

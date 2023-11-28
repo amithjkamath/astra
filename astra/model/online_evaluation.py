@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 from astra.data.dataloader import val_transform, read_data, pre_processing
-from astra.validation.evaluate_DLDP import *
+from astra.train.evaluate_DLDP import *
 import torch
 
 

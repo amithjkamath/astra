@@ -47,11 +47,11 @@ def rtdose_to_nifti(base_input_path, base_output_path, n_subjects):
             # print("Completed subject: " + subject_name)
         except Exception as ex:
             print(ex)
-            print("Errored on subject: ", subject_name, "; skipping it.")
+            print("Errored on subject: ", subject_id, "; skipping it.")
 
 
 if __name__ == "__main__":
-    input_path = "/home/akamath/Documents/deep-planner/data/raw-dldp-old/"
-    output_path = "/home/akamath/Documents/deep-planner/data/interim-dldp-dt/"
+    input_path = "/Users/amithkamath/data/DLDP/raw/"
+    output_path = "/Users/amithkamath/data/DLDP/processed-dose"
     num_subjects = 100
     rtdose_to_nifti(input_path, output_path, num_subjects)

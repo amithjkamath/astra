@@ -1,3 +1,6 @@
+import numpy as np
+from astra.data.utils import flip_3d
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -185,3 +188,23 @@ class Model(nn.Module):
         output_A = self.conv_out_A(out_net_A)
         output_B = self.conv_out_B(out_net_B)
         return [output_A + output_B, output_B]
+
+
+def inference(trainer, input_, TTA_mode):
+    list_prediction_B = []
+
+    for list_flip_axes in TTA_mode:
+        # Do Augmentation before forward
+        augmented_input = flip_3d(input_.copy(), list_flip_axes)
+        augmented_input = torch.from_numpy(augmented_input.astype(np.float32))
+        augmented_input = augmented_input.unsqueeze(0).to(trainer.setting.device)
+        [_, prediction_B] = trainer.setting.network(augmented_input)
+
+        # Aug back to original order
+        prediction_B = flip_3d(
+            np.array(prediction_B.cpu().data[0, :, :, :, :]), list_flip_axes
+        )
+
+        list_prediction_B.append(prediction_B[0, :, :, :])
+
+    return np.mean(list_prediction_B, axis=0)

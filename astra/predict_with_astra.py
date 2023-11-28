@@ -10,13 +10,12 @@ from tqdm import tqdm
 if os.path.abspath("..") not in sys.path:
     sys.path.insert(0, os.path.abspath(".."))
 
-from astra.utils.data_utils import (
+from astra.data.utils import (
     read_image_data,
     concatenate,
-    inference,
     copy_sitk_imageinfo,
 )
-from astra.model.C3D import Model
+from astra.model.C3D import Model, inference
 from astra.train.network_trainer import *
 
 

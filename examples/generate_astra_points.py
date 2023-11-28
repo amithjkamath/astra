@@ -1,16 +1,15 @@
 # -*- encoding: utf-8 -*-
 import os
 import sys
-import argparse
 import numpy as np
 import SimpleITK as sitk
 import skimage.morphology as skm
 from tqdm import tqdm
 
-if os.path.abspath("..") not in sys.path:
-    sys.path.insert(0, os.path.abspath(".."))
+if os.path.abspath("../astra") not in sys.path:
+    sys.path.insert(0, os.path.abspath("../astra"))
 
-from astra.utils.data_utils import (
+from astra.data.utils import (
     read_image_data,
     copy_sitk_imageinfo,
 )
@@ -115,7 +114,7 @@ def generate_perturbation_masks(list_patient_dirs, save_path):
 
 if __name__ == "__main__":
 
-    root_dir = "/Users/amithkamath/repo/astra"
+    root_dir = "/"
     model_dir = os.path.join(root_dir, "models")
     output_dir = os.path.join(root_dir, "output_perturb")
     os.makedirs(output_dir, exist_ok=True)
