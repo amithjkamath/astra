@@ -11,7 +11,7 @@ if os.path.abspath("../astra") not in sys.path:
 
 from astra.data.utils import (
     read_image_data,
-    copy_sitk_imageinfo,
+    copy_image_info,
 )
 
 
@@ -69,7 +69,7 @@ def generate_perturbation_masks(list_patient_dirs, save_path):
 
             template_nii = sitk.ReadImage(patient_dir + "/Brain.nii.gz")
             original_mask = sitk.GetImageFromArray(np.squeeze(dict_images[oar]))
-            original_mask = copy_sitk_imageinfo(template_nii, original_mask)
+            original_mask = copy_image_info(template_nii, original_mask)
             if not os.path.exists(save_path + "/" + patient_id):
                 os.mkdir(save_path + "/" + patient_id)
             sitk.WriteImage(
@@ -91,7 +91,7 @@ def generate_perturbation_masks(list_patient_dirs, save_path):
                 perturbed_mask = sitk.GetImageFromArray(
                     np.squeeze(perturbed_images[oar])
                 )
-                perturbed_mask = copy_sitk_imageinfo(template_nii, perturbed_mask)
+                perturbed_mask = copy_image_info(template_nii, perturbed_mask)
                 if not os.path.exists(save_path + "/" + patient_id):
                     os.mkdir(save_path + "/" + patient_id)
                 sitk.WriteImage(

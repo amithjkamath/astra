@@ -14,7 +14,7 @@ import torch
 import warnings
 
 from astra.data.dataloader import get_loader
-from monai.networks.nets import BasicUNet
+from astra.model.CascadedUNet import CascadedUNet
 
 from pathlib import Path
 import argparse
@@ -73,11 +73,14 @@ def trainer(args):
 
     # create the model
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = BasicUNet(
+    model = CascadedUNet(
         spatial_dims=3,
         in_channels=15,
         out_channels=1,
-        features=[32, 64, 128, 256, 512, 32],
+        channels_first=(16, 32, 64, 128, 256),
+        channels_second=(32, 64, 128, 256, 512),
+        strides=(2, 2, 2, 2),
+        act="ReLU",
     ).to(device)
     print("#model_params:", np.sum([len(p.flatten()) for p in model.parameters()]))
 

@@ -13,7 +13,7 @@ if os.path.abspath("..") not in sys.path:
 from astra.data.utils import (
     read_image_data,
     concatenate,
-    copy_sitk_imageinfo,
+    copy_image_info,
 )
 from astra.model.C3D import Model, inference
 from astra.train.network_trainer import *
@@ -87,7 +87,7 @@ def inference_with_perturbation(trainer, list_patient_dirs, save_path, do_TTA=Tr
 
             templete_nii = sitk.ReadImage(patient_dir + "/Dose_Mask.nii.gz")
             prediction_nii = sitk.GetImageFromArray(gt_prediction)
-            prediction_nii = copy_sitk_imageinfo(templete_nii, prediction_nii)
+            prediction_nii = copy_image_info(templete_nii, prediction_nii)
             if not os.path.exists(save_path + "/" + patient_id):
                 os.mkdir(save_path + "/" + patient_id)
             sitk.WriteImage(
@@ -138,7 +138,7 @@ def inference_with_perturbation(trainer, list_patient_dirs, save_path, do_TTA=Tr
 
                 templete_nii = sitk.ReadImage(patient_dir + "/Brain.nii.gz")
                 prediction_nii = sitk.GetImageFromArray(perturb_prediction)
-                prediction_nii = copy_sitk_imageinfo(templete_nii, prediction_nii)
+                prediction_nii = copy_image_info(templete_nii, prediction_nii)
                 if not os.path.exists(save_path + "/" + patient_id):
                     os.mkdir(save_path + "/" + patient_id)
                 sitk.WriteImage(

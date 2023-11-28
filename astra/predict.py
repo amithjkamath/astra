@@ -10,7 +10,7 @@ from tqdm import tqdm
 from astra.data.utils import (
     read_image_data,
     concatenate,
-    copy_sitk_imageinfo,
+    copy_image_info,
 )
 from astra.model.C3D import Model, inference
 from astra.train.network_trainer import *
@@ -50,7 +50,7 @@ def predict(trainer, list_patient_dirs, save_path, do_TTA=True):
             # Save prediction to nii image
             templete_nii = sitk.ReadImage(patient_dir + "/Dose_Mask.nii.gz")
             prediction_nii = sitk.GetImageFromArray(prediction)
-            prediction_nii = copy_sitk_imageinfo(templete_nii, prediction_nii)
+            prediction_nii = copy_image_info(templete_nii, prediction_nii)
             if not os.path.exists(save_path + "/" + patient_id):
                 os.mkdir(save_path + "/" + patient_id)
             sitk.WriteImage(

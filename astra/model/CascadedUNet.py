@@ -117,4 +117,4 @@ class CascadedUNet(UNet):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         y = self.first(x)
         z = self.second(torch.cat([y, x], dim=1))
-        return [z, y]
+        return z

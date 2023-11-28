@@ -17,7 +17,7 @@ if __name__ == "__main__":
 
     repo_root = "/Users/amithkamath/repo/astra/"
     data_root = "/Users/amithkamath/data/DLDP/ground_truth_small"
-    model_dir = os.path.join(repo_root, "models", "dldp-small")
+    model_dir = os.path.join(repo_root, "models", "dldp-small-unet")
     os.makedirs(model_dir, exist_ok=True)
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -52,7 +52,7 @@ if __name__ == "__main__":
 
     list_eval_dirs = [
         os.path.join(data_root, "DLDP_") + str(i).zfill(3)
-        for i in range(62, 80)
+        for i in range(61, 80)
         if i not in [63, 65, 67, 77]  # missing data
     ]
 

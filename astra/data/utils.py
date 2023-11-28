@@ -1,7 +1,6 @@
 import os
 import numpy as np
 import SimpleITK as sitk
-import torch
 
 
 def read_image_data(patient_dir: str):
@@ -85,7 +84,7 @@ def concatenate(dict_images: dict):
     return list_images
 
 
-def copy_sitk_imageinfo(image1, image2):
+def copy_image_info(image1, image2):
     image2.SetSpacing(image1.GetSpacing())
     image2.SetDirection(image1.GetDirection())
     image2.SetOrigin(image1.GetOrigin())
@@ -94,10 +93,26 @@ def copy_sitk_imageinfo(image1, image2):
 
 
 # Input is C*Z*H*W
-def flip_3d(input_, list_axes):
+def flip_3d(input, list_axes):
     if "Z" in list_axes:
-        input_ = input_[:, ::-1, :, :]
+        input = input[:, ::-1, :, :]
     if "W" in list_axes:
-        input_ = input_[:, :, :, ::-1]
+        input = input[:, :, :, ::-1]
 
-    return input_
+    return input
+
+
+def resample(input_image: sitk.Image, reference_image: sitk.Image):
+    """
+    RESAMPLE resamples input image to be in the same coordinates as reference_image.
+    """
+
+    rs_filter = sitk.ResampleImageFilter()
+    rs_filter.SetInterpolator = sitk.sitkLinear
+    rs_filter.SetOutputDirection = reference_image.GetDirection()
+    rs_filter.SetOutputOrigin(reference_image.GetOrigin())
+    rs_filter.SetOutputSpacing(reference_image.GetSpacing())
+    rs_filter.SetSize(reference_image.GetSize())
+
+    resampled_image = rs_filter.Execute(input_image)
+    return resampled_image
