@@ -8,8 +8,8 @@ if os.path.abspath("..") not in sys.path:
 import argparse
 
 from astra.data.dataloader import get_loader
-from astra.training.network_trainer import NetworkTrainer
-from astra.model.model import Model
+from astra.train.network_trainer import NetworkTrainer
+from astra.model.C3D import Model
 from astra.model.online_evaluation import online_evaluation
 from astra.model.loss import Loss
 
@@ -21,24 +21,21 @@ if __name__ == "__main__":
     os.makedirs(model_dir, exist_ok=True)
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--batch_size", type=int, default=2, help="batch size for training (default: 2)"
+        "--batch_size", type=int, default=2, help="batch size for train (default: 2)"
     )
     parser.add_argument(
         "--list_GPU_ids",
         nargs="+",
         type=int,
         default=[-1],
-        help="list_GPU_ids for training (default: [-1] for CPU)",
+        help="list_GPU_ids for train (default: [-1] for CPU)",
     )
     parser.add_argument(
-        "--max_iter",
-        type=int,
-        default=80000,
-        help="training iterations(default: 80000)",
+        "--max_iter", type=int, default=80000, help="train iterations(default: 80000)",
     )
     args = parser.parse_args()
 
-    #  Start training
+    #  Start train
     trainer = NetworkTrainer()
     trainer.setting.project_name = "C3D"
     trainer.setting.output_dir = model_dir

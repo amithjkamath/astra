@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 import torch
-from astra.model.cascaded_unet_monai import CascadedUNet
-from astra.model.model import Model
+from astra.model.CascadedUNet import CascadedUNet
+from astra.model.C3D import Model
 
 
 def main():

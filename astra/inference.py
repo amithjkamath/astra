@@ -1,28 +1,26 @@
 # -*- encoding: utf-8 -*-
 import os
 import sys
-import json
 import argparse
 import numpy as np
-import pandas as pd
 import SimpleITK as sitk
 from tqdm import tqdm
 
 
 from astra.utils.data_utils import (
-    read_data,
-    pre_processing,
-    test_time_augmentation,
+    read_image_data,
+    concatenate,
+    inference,
     copy_sitk_imageinfo,
 )
-from astra.model.model import Model
-from astra.training.network_trainer import *
+from astra.model.C3D import Model
+from astra.train.network_trainer import *
 
 if os.path.abspath("..") not in sys.path:
     sys.path.insert(0, os.path.abspath(".."))
 
 
-def inference(trainer, list_patient_dirs, save_path, do_TTA=True):
+def predict(trainer, list_patient_dirs, save_path, do_TTA=True):
     if not os.path.exists(save_path):
         os.mkdir(save_path)
 
@@ -31,8 +29,8 @@ def inference(trainer, list_patient_dirs, save_path, do_TTA=True):
         for patient_dir in tqdm(list_patient_dirs):
             patient_id = patient_dir.split("/")[-1]
 
-            dict_images = read_data(patient_dir)
-            list_images = pre_processing(dict_images)
+            dict_images = read_image_data(patient_dir)
+            list_images = concatenate(dict_images)
 
             input_ = list_images[0]
             possible_dose_mask = list_images[1]
@@ -42,7 +40,7 @@ def inference(trainer, list_patient_dirs, save_path, do_TTA=True):
                 TTA_mode = [[], ["Z"], ["W"], ["Z", "W"]]
             else:
                 TTA_mode = [[]]
-            prediction = test_time_augmentation(trainer, input_, TTA_mode)
+            prediction = inference(trainer, input_, TTA_mode)
 
             # Pose-processing
             prediction[
@@ -110,7 +108,7 @@ def main():
         # Start inference
         print("\n\n# Start inference !")
         list_patient_dirs = [os.path.join(test_dir, "DLDP_" + str(subject_id).zfill(3))]
-        inference(
+        predict(
             trainer,
             list_patient_dirs,
             save_path=os.path.join(trainer.setting.output_dir, "Prediction"),

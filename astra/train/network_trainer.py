@@ -9,7 +9,7 @@ from torch import optim
 class TrainerSetting:
     def __init__(self):
         self.project_name = None
-        # Path for saving model and training log
+        # Path for saving model and train log
         self.output_dir = None
 
         # Generally only use one of them
@@ -56,7 +56,7 @@ class TrainerLog:
         self.average_val_index = -99999999.0
         self.best_average_val_index = -99999999.0
 
-        # Record changes in training loss
+        # Record changes in train loss
         self.list_average_train_loss_associate_iter = []
         # Record changes in validation evaluation index
         self.list_average_val_index_associate_iter = []
@@ -311,14 +311,14 @@ class NetworkTrainer:
 
     def run(self):
         if self.log.iter == -1:
-            self.print_log_to_file("Start training !\n", "w")
+            self.print_log_to_file("Start train !\n", "w")
         else:
-            self.print_log_to_file("Continue training !\n", "w")
+            self.print_log_to_file("Continue train !\n", "w")
         self.print_log_to_file(
             time.strftime("Local time: %H:%M:%S\n", time.localtime(time.time())), "a"
         )
 
-        # Start training
+        # Start train
         while (self.log.epoch < self.setting.max_epoch - 1) and (
             self.log.iter < self.setting.max_iter - 1
         ):
@@ -459,4 +459,3 @@ class NetworkTrainer:
         self.print_log_to_file(
             "==> Init trainer from " + ckpt_file + " successfully! \n", "a"
         )
-

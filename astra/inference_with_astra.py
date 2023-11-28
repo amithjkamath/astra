@@ -11,13 +11,13 @@ if os.path.abspath("..") not in sys.path:
     sys.path.insert(0, os.path.abspath(".."))
 
 from astra.utils.data_utils import (
-    read_data,
-    pre_processing,
-    test_time_augmentation,
+    read_image_data,
+    concatenate,
+    inference,
     copy_sitk_imageinfo,
 )
-from astra.model.model import Model
-from astra.training.network_trainer import *
+from astra.model.C3D import Model
+from astra.train.network_trainer import *
 
 
 def find_boundary_points(volume):
@@ -25,8 +25,8 @@ def find_boundary_points(volume):
     Find points on the boundary of a region of interest.
     These points will then be used to create perturbations.
     """
-    ball = skm.ball(3)
-    volume_larger = skm.binary_dilation(volume[0, :, :, :], ball)
+    ball = skm.ball(1)
+    volume_larger = skm.binary_erosion(volume[0, :, :, :], ball)
     boundary_volume = volume_larger - volume[0, :, :, :]
     points = np.nonzero(boundary_volume)
     out_points = []
@@ -42,7 +42,7 @@ def find_boundary_points(volume):
 
 def dilate_at(volume, point):
     """
-    Dilate the binary volume 'volume' at the point specified bt point.
+    Dilate the binary volume 'volume' at the point specified by point.
     """
     ball = skm.ball(3)
     point_vol = np.zeros(volume[0, :, :, :].shape, dtype=np.uint8)
@@ -66,9 +66,9 @@ def inference_with_perturbation(trainer, list_patient_dirs, save_path, do_TTA=Tr
         for patient_dir in list_patient_dirs:
             patient_id = patient_dir.split("/")[-1]
 
-            dict_images = read_data(patient_dir)
+            dict_images = read_image_data(patient_dir)
 
-            list_images = pre_processing(dict_images)
+            list_images = concatenate(dict_images)
 
             input_ = list_images[0]
             possible_dose_mask = list_images[1]
@@ -78,7 +78,7 @@ def inference_with_perturbation(trainer, list_patient_dirs, save_path, do_TTA=Tr
                 TTA_mode = [[], ["Z"], ["W"], ["Z", "W"]]
             else:
                 TTA_mode = [[]]
-            prediction = test_time_augmentation(trainer, input_, TTA_mode)
+            prediction = inference(trainer, input_, TTA_mode)
 
             # Pose-processing
             prediction[
@@ -92,8 +92,7 @@ def inference_with_perturbation(trainer, list_patient_dirs, save_path, do_TTA=Tr
             if not os.path.exists(save_path + "/" + patient_id):
                 os.mkdir(save_path + "/" + patient_id)
             sitk.WriteImage(
-                prediction_nii,
-                save_path + "/" + patient_id + "/Dose_gt.nii.gz",
+                prediction_nii, save_path + "/" + patient_id + "/Dose_gt.nii.gz",
             )
 
             list_OAR_names = ["Target"]
@@ -111,9 +110,10 @@ def inference_with_perturbation(trainer, list_patient_dirs, save_path, do_TTA=Tr
                 # At this stage, do perturbation on the OAR boundary.
                 for point in tqdm(point_set):
 
+                    dict_images = read_image_data(patient_dir)
                     dict_images[oar] = dilate_at(dict_images[oar], point)
 
-                    list_images = pre_processing(dict_images)
+                    list_images = concatenate(dict_images)
 
                     input_ = list_images[0]
                     possible_dose_mask = list_images[1]
@@ -123,7 +123,7 @@ def inference_with_perturbation(trainer, list_patient_dirs, save_path, do_TTA=Tr
                         TTA_mode = [[], ["Z"], ["W"], ["Z", "W"]]
                     else:
                         TTA_mode = [[]]
-                    prediction = test_time_augmentation(trainer, input_, TTA_mode)
+                    prediction = inference(trainer, input_, TTA_mode)
 
                     # Pose-processing
                     prediction[
@@ -137,7 +137,7 @@ def inference_with_perturbation(trainer, list_patient_dirs, save_path, do_TTA=Tr
 
                     perturb_prediction[point[0], point[1], point[2]] = absdiff
 
-                templete_nii = sitk.ReadImage(patient_dir + "/Dose_Mask.nii.gz")
+                templete_nii = sitk.ReadImage(patient_dir + "/Brain.nii.gz")
                 prediction_nii = sitk.GetImageFromArray(perturb_prediction)
                 prediction_nii = copy_sitk_imageinfo(templete_nii, prediction_nii)
                 if not os.path.exists(save_path + "/" + patient_id):

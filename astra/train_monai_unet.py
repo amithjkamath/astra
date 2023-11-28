@@ -42,9 +42,9 @@ def trainer(args):
     date = now.strftime("%m-%d-%y_%H-%M")
     writer = SummaryWriter(
         outpath + "/" + date
-    )  # create a date directory within the output directory for storing training logs
+    )  # create a date directory within the output directory for storing train logs
 
-    # create training-validation data loaders
+    # create train-validation data loaders
     list_eval_dirs = [
         os.path.join(data_root, "DLDP_") + str(i).zfill(3)
         for i in range(62, 80)
@@ -66,8 +66,8 @@ def trainer(args):
         data_paths,
         train_bs=2,
         val_bs=1,
-        train_num_samples_per_epoch=2 * 60,
-        val_num_samples_per_epoch=1,
+        train_num_samples_per_epoch=60,
+        val_num_samples_per_epoch=15,
         num_works=4,
     )
 
@@ -92,7 +92,7 @@ def trainer(args):
         optimizer, args.lr_step_size, args.lr_gamma
     )
 
-    # start a typical PyTorch training loop
+    # start a typical PyTorch train loop
     val_interval = 2  # doing validation every 2 epochs
     best_metric = 1e10
     best_metric_epoch = -1
@@ -135,8 +135,6 @@ def trainer(args):
             with torch.no_grad():
                 val_loss_array = list()
                 for batch_idx, list_loader_output in enumerate(val_loader):
-                    step += 1
-                    optimizer.zero_grad()
                     input_ = list_loader_output[0]
                     target = list_loader_output[1]
                     mask = list_loader_output[2]
@@ -169,7 +167,7 @@ def trainer(args):
                 writer.add_scalar("val_mae", metric, epoch + 1)
 
     print(
-        f"training completed, best_metric: {best_metric:.4f} at epoch: {best_metric_epoch}"
+        f"train completed, best_metric: {best_metric:.4f} at epoch: {best_metric_epoch}"
     )
     writer.close()
 
@@ -177,16 +175,16 @@ def trainer(args):
 def main():
     parser = argparse.ArgumentParser()
 
-    # training params
+    # train params
     parser.add_argument(
-        "--num_epochs", default=50, type=int, help="number of training epochs"
+        "--num_epochs", default=50, type=int, help="number of train epochs"
     )
 
     parser.add_argument(
         "--exp_dir",
         default="/Users/amithkamath/repo/astra/output",
         type=Path,
-        help="output directory to save training logs",
+        help="output directory to save train logs",
     )
 
     parser.add_argument(
@@ -196,11 +194,11 @@ def main():
         help="experiment name (a folder will be created with this name to store the results)",
     )
 
-    parser.add_argument("--lr", default=0.001, type=float, help="learning rate")
+    parser.add_argument("--lr", default=0.0001, type=float, help="learning rate")
 
     parser.add_argument(
         "--lr_step_size",
-        default=40,
+        default=2,
         type=int,
         help="decay learning rate every lr_step_size epochs",
     )

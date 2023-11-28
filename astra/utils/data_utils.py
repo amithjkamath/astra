@@ -4,10 +4,11 @@ import SimpleITK as sitk
 import torch
 
 
-def read_data(patient_dir):
+def read_image_data(patient_dir: str):
     dict_images = {}
     list_structures = [
         "CT",
+        "Brain",
         "BrainStem",
         "Chiasm",
         "Cochlea_L",
@@ -45,7 +46,7 @@ def read_data(patient_dir):
     return dict_images
 
 
-def pre_processing(dict_images):
+def concatenate(dict_images: dict):
     # PTVs
     PTVs = dict_images["Target"]
 
@@ -75,7 +76,7 @@ def pre_processing(dict_images):
     CT = CT.astype(np.float32) / 1000.0
 
     # Possible mask
-    possible_dose_mask = dict_images["Dose_Mask"]
+    possible_dose_mask = dict_images["Brain"]
 
     list_images = [
         np.concatenate((PTVs, OAR_all, CT), axis=0),  # Input
@@ -102,7 +103,7 @@ def flip_3d(input_, list_axes):
     return input_
 
 
-def test_time_augmentation(trainer, input_, TTA_mode):
+def inference(trainer, input_, TTA_mode):
     list_prediction_B = []
 
     for list_flip_axes in TTA_mode:

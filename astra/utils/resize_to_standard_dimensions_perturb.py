@@ -1,5 +1,5 @@
 """
-Resample volumes to a consistent space for training the C3D network
+Resample volumes to a consistent space for train the C3D network
 """
 
 import os
@@ -13,7 +13,7 @@ def resize_volume(ref_img, output_size, is_label=False):
     RESIZE_VOLUME resizes volumes using sitk.
     See https://gist.github.com/zivy/79d7ee0490faee1156c1277a78e4a4c4 for more.
     Physical image size corresponds to the largest physical size in the
-    training set, or any other arbitrary size.
+    train set, or any other arbitrary size.
     """
     reference_physical_size = np.zeros(3)
     reference_physical_size[:] = [
