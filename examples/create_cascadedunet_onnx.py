@@ -35,18 +35,18 @@ def main():
         },
     )
 
-    legacy_model = Model(
+    legacy_C3D_model = Model(
         in_ch=15,
         out_ch=1,
         list_ch_A=[-1, 16, 32, 64, 128, 256],
         list_ch_B=[-1, 32, 64, 128, 256, 512],
     )
 
-    legacy_model.eval()
+    legacy_C3D_model.eval()
     torch.onnx.export(
-        legacy_model,  # model being run
+        legacy_C3D_model,  # model being run
         x,  # model input (or a tuple for multiple inputs)
-        "cascaded_unet_legacy.onnx",  # where to save the model (can be a file or file-like object)
+        "cascaded_unet_c3d.onnx",  # where to save the model (can be a file or file-like object)
         export_params=True,  # store the trained parameter weights inside the model file
         opset_version=11,  # the ONNX version to export the model to
         do_constant_folding=True,  # whether to execute constant folding for optimization
