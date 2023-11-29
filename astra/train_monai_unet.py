@@ -199,7 +199,7 @@ def main():
 
     parser.add_argument(
         "--lr_step_size",
-        default=2,
+        default=5,
         type=int,
         help="decay learning rate every lr_step_size epochs",
     )

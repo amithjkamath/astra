@@ -160,7 +160,9 @@ def trainer(args):
                     best_metric_epoch = epoch + 1
                     torch.save(
                         model.state_dict(),
-                        os.path.join(outpath + "/" + date, "unet_dose_prediction.pt"),
+                        os.path.join(
+                            outpath + "/" + date, "cascaded_unet_dose_prediction.pt"
+                        ),
                     )
                     print("saved new best metric model")
                 print(
@@ -198,7 +200,7 @@ def main():
         help="experiment name (a folder will be created with this name to store the results)",
     )
 
-    parser.add_argument("--lr", default=0.0001, type=float, help="learning rate")
+    parser.add_argument("--lr", default=0.001, type=float, help="learning rate")
 
     parser.add_argument(
         "--lr_step_size",
