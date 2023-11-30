@@ -117,7 +117,7 @@ def random_pad_to_size_3d(list_images, target_size, list_pad_value):
     return output
 
 
-def read_image_data(patient_dir: str):
+def read_image_data(patient_dir: str, prefix: str = ""):
     dict_images = {}
     list_structures = [
         "CT",
@@ -141,13 +141,15 @@ def read_image_data(patient_dir: str):
     ]
 
     for structure_name in list_structures:
-        structure_file = patient_dir + "/" + structure_name + ".nii.gz"
 
         if structure_name == "CT":
+            structure_file = patient_dir + "/" + structure_name + ".nii.gz"
             dtype = sitk.sitkInt16
         elif structure_name == "Dose":
+            structure_file = patient_dir + "/" + structure_name + ".nii.gz"
             dtype = sitk.sitkFloat32
         else:
+            structure_file = patient_dir + "/" + prefix + structure_name + ".nii.gz"
             dtype = sitk.sitkUInt8
 
         if os.path.exists(structure_file):
