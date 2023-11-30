@@ -1,5 +1,6 @@
 # -*- encoding: utf-8 -*-
-from astra.data.dataloader import val_transform, read_data, pre_processing
+from astra.data.dataloader import val_transform
+from astra.data.utils import read_image_data, concatenate
 from astra.train.evaluate_DLDP import *
 import torch
 
@@ -13,8 +14,8 @@ def online_evaluation(trainer, list_patient_dirs):
         for patient_dir in list_patient_dirs:
             patient_name = patient_dir.split("/")[-1]
 
-            dict_images = read_data(patient_dir)
-            list_images = pre_processing(dict_images)
+            dict_images = read_image_data(patient_dir)
+            list_images = concatenate(dict_images)
 
             input_ = list_images[0]
             gt_dose = list_images[1]

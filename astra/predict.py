@@ -32,7 +32,8 @@ def predict(trainer, list_patient_dirs, save_path, do_TTA=True):
             list_images = concatenate(dict_images)
 
             input_ = list_images[0]
-            possible_dose_mask = list_images[1]
+            # dose = list_images[1]
+            possible_dose_mask = list_images[2]
 
             # Test-time augmentation
             if do_TTA:
@@ -41,16 +42,16 @@ def predict(trainer, list_patient_dirs, save_path, do_TTA=True):
                 TTA_mode = [[]]
             prediction = inference(trainer, input_, TTA_mode)
 
-            # Pose-processing
+            # Post-processing
             prediction[
                 np.logical_or(possible_dose_mask[0, :, :, :] < 1, prediction < 0)
             ] = 0
             prediction = 70.0 * prediction
 
             # Save prediction to nii image
-            templete_nii = sitk.ReadImage(patient_dir + "/Dose_Mask.nii.gz")
+            template_nii = sitk.ReadImage(patient_dir + "/Dose_Mask.nii.gz")
             prediction_nii = sitk.GetImageFromArray(prediction)
-            prediction_nii = copy_image_info(templete_nii, prediction_nii)
+            prediction_nii = copy_image_info(template_nii, prediction_nii)
             if not os.path.exists(save_path + "/" + patient_id):
                 os.mkdir(save_path + "/" + patient_id)
             sitk.WriteImage(

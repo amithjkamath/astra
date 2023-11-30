@@ -66,8 +66,8 @@ def trainer(args):
         data_paths,
         train_bs=2,
         val_bs=1,
-        train_num_samples_per_epoch=240,
-        val_num_samples_per_epoch=80,
+        train_num_samples_per_epoch=480,
+        val_num_samples_per_epoch=160,
         num_works=4,
     )
 
@@ -178,7 +178,7 @@ def main():
 
     # train params
     parser.add_argument(
-        "--num_epochs", default=50, type=int, help="number of train epochs"
+        "--num_epochs", default=100, type=int, help="number of train epochs"
     )
 
     parser.add_argument(
@@ -195,11 +195,11 @@ def main():
         help="experiment name (a folder will be created with this name to store the results)",
     )
 
-    parser.add_argument("--lr", default=0.0001, type=float, help="learning rate")
+    parser.add_argument("--lr", default=0.001, type=float, help="learning rate")
 
     parser.add_argument(
         "--lr_step_size",
-        default=5,
+        default=10,
         type=int,
         help="decay learning rate every lr_step_size epochs",
     )
