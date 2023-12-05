@@ -27,6 +27,11 @@ def main():
         )
         p.add_mesh(mesh, color="red", style="wireframe", line_width=2)
 
+        target_file = os.path.join(gt_path, test_id, "Target.nii.gz")
+        target_image = sitk.ReadImage(target_file, sitk.sitkUInt8)
+        target_array = sitk.GetArrayFromImage(target_image)
+        p.add_volume(np.multiply(target_array, 255), cmap="jet", shade=False)
+
         scaled_volume = {}
         for structure in [
             "BrainStem",
@@ -52,11 +57,7 @@ def main():
                 scaled_volume[structure].astype(np.uint8), shade=False, cmap="viridis",
             )
 
-        target_file = os.path.join(gt_path, test_id, "Target.nii.gz")
-        target_image = sitk.ReadImage(target_file, sitk.sitkUInt8)
-        target_array = sitk.GetArrayFromImage(target_image)
-        p.add_volume(np.multiply(target_array, 255), cmap="hot", shade=True)
-
+        p.show_grid()
         p.show()
         p.deep_clean()
 
