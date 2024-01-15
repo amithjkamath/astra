@@ -1,14 +1,12 @@
-import os
-import numpy as np
 import torch
 import warnings
 import matplotlib.pyplot as plt
 
-from astra.data.utils import read_image_data, concatenate
 from monai.networks.nets import BasicUNet
-
-from pathlib import Path
 from monai.config import print_config
+
+from astra.data.utils import read_image_data, concatenate, copy_image_info
+from astra.train.evaluate_DLDP import *
 
 warnings.filterwarnings("ignore")
 
@@ -18,13 +16,10 @@ def main():
 
     repo_root = "/Users/amithkamath/repo/astra/"
     data_root = "/Users/amithkamath/data/DLDP/"
-    data_path = os.path.join(data_root, "ground_truth_small")
-    out_path = os.path.join(repo_root, "monai_unet_results")
-    Path(out_path).mkdir(parents=True, exist_ok=True)
+    data_path = os.path.join(data_root, "astute-results")
 
-    list_test_dirs = [
-        os.path.join(data_path, "DLDP_") + str(i).zfill(3) for i in range(81, 91)
-    ]
+    patient_id = "0800"
+    list_test_dirs = [os.path.join(data_path, "DLDP_" + patient_id)]
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = BasicUNet(
@@ -35,17 +30,13 @@ def main():
     ).to(device)
 
     checkpoint = torch.load(
-        os.path.join(
-            repo_root, "output/monai_testing/11-29-23_00-38/unet_dose_prediction.pt"
-        ),
+        os.path.join(repo_root, "models/unet-monai/unet_dose_prediction.pt"),
         map_location=device,
     )
     model.load_state_dict(checkpoint)
 
     with torch.no_grad():
-        step = 1
         for test_dir in list_test_dirs:
-            test_id = test_dir.split("/")[-1]
             dict_images = read_image_data(test_dir)
             list_images = concatenate(dict_images)
 
@@ -63,22 +54,24 @@ def main():
             ] = 0
             prediction = 70.0 * prediction
 
-            print(step, "   volume out of", len(list_test_dirs), "done.", "\r", end="")
-            step += 1
+            # Save prediction to nii image
+            template_nii = sitk.ReadImage(test_dir + "/Dose_Mask.nii.gz")
+            prediction_nii = sitk.GetImageFromArray(prediction[0, 0, ...])
+            prediction_nii = copy_image_info(template_nii, prediction_nii)
+            if not os.path.exists(test_dir + "/Prediction"):
+                os.mkdir(test_dir + "/Prediction")
+            sitk.WriteImage(
+                prediction_nii, test_dir + "/Prediction/Dose.nii.gz",
+            )
 
-            slice = 16
-            # visualize
-            fig = plt.figure(figsize=(14, 7))
-            plt.title(f"Subject: {test_id}")
-            ax = fig.add_subplot(121)
-            ax.imshow(gt_dose[0, 0, slice, :, :], "gray")
-            ax.set_title("ground truth dose")
-            ax.axis("off")
+            Dose_score, DVH_score = get_Dose_score_and_DVH_score_per_ROI(
+                prediction_dir=test_dir + "/Prediction",
+                patient_id=patient_id,
+                gt_dir=data_path,
+            )
 
-            ax = fig.add_subplot(122)
-            ax.imshow(prediction[0, 0, slice, :, :], "gray")
-            ax.set_title("predicted dose")
-            ax.axis("off")
+            print("Dose score is: " + str(Dose_score))
+            print("DVH score is: " + str(DVH_score))
 
             plt.show()
 

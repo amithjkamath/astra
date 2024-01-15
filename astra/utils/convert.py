@@ -6,12 +6,31 @@ import SimpleITK as sitk
 from DicomRTTool.ReaderWriter import DicomReaderWriter, ROIAssociationClass
 
 
+def images_to_nifti(input_path):
+    """
+    IMAGES_TO_NIFTI converts DICOM image volumes to NIfTI.
+    """
+
+    dicom_reader = DicomReaderWriter(arg_max=True)
+    dicom_reader.walk_through_folders(input_path)
+
+    images = []
+    indices = dicom_reader.indexes_with_contours
+    for index in indices:
+        dicom_reader.set_index(index)
+        dicom_reader.get_images()
+        image_handle = dicom_reader.dicom_handle
+        images.append(image_handle)
+    return images
+
+
 def ct_to_nifti(input_path):
     """
     CT_TO_NIFTI converts CT DICOM volumes to NIfTI.
+    This works when the only image data in the folder is CT.
     """
 
-    dicom_reader = DicomReaderWriter(description="Examples", arg_max=True)
+    dicom_reader = DicomReaderWriter(arg_max=True)
     dicom_reader.walk_through_folders(input_path)
 
     associations = [ROIAssociationClass("brain", ["Brain"])]
