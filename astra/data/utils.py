@@ -206,12 +206,12 @@ def concatenate(dict_images: dict):
     return list_images
 
 
-def copy_image_info(image1, image2):
-    image2.SetSpacing(image1.GetSpacing())
-    image2.SetDirection(image1.GetDirection())
-    image2.SetOrigin(image1.GetOrigin())
+def copy_image_info(source_image, destination_image):
+    destination_image.SetSpacing(source_image.GetSpacing())
+    destination_image.SetDirection(source_image.GetDirection())
+    destination_image.SetOrigin(source_image.GetOrigin())
 
-    return image2
+    return destination_image
 
 
 # Input is C*Z*H*W

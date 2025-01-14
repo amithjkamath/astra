@@ -2,8 +2,8 @@ import sys
 from setuptools import find_packages, setup
 
 
-if sys.version_info < (3, 7):
-    sys.exit("Requires Python 3.7 or higher")
+if sys.version_info < (3, 11):
+    sys.exit("Requires Python 3.11 or higher")
 
 with open("README.md") as f:
     readme = f.read()

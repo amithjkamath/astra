@@ -19,7 +19,7 @@ warnings.filterwarnings("ignore")
 
 
 def trainer(config):
-    data_root = "/Users/amithkamath/data/DLDP/ground_truth_small"
+    data_root = "/Users/amithkamath/data/DLDP/processed-to-train"
     logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
     outpath = os.path.join(config["exp_directory"], config["exp_name"])
@@ -33,13 +33,13 @@ def trainer(config):
 
     # create train-validation data loaders
     list_train_dirs = [
-        os.path.join(data_root, "DLDP_") + str(i).zfill(3)
+        os.path.join(data_root, "ISAS_GBM_") + str(i).zfill(3)
         for i in range(1, 61)
         if i != 40
     ]
 
     list_val_dirs = [
-        os.path.join(data_root, "DLDP_") + str(i).zfill(3)
+        os.path.join(data_root, "ISAS_GBM_") + str(i).zfill(3)
         for i in range(61, 81)
         if i not in [63, 65, 67, 77]  # missing data
     ]
@@ -170,8 +170,8 @@ def main():
 
     config = {
         # experiment settings
-        "exp_directory": "/Users/amithkamath/repo/astra/output",
-        "exp_name": "basic-unet-test",
+        "exp_directory": "/Users/amithkamath/repo/personal/astra/output-v2",
+        "exp_name": "basic-unet-test-v2",
         "date": date,
         # data
         "cache_rate": 1.0,
@@ -199,7 +199,7 @@ def main():
 
     project_name = date + "-seed-" + str(config["seed"])
     wandb.init(
-        project="BasicUNet-small-dose-prediction", name=project_name, config=config,
+        project="BasicUNet-dose-prediction-v2", name=project_name, config=config,
     )
     trainer(config)
     wandb.finish()
