@@ -34,13 +34,12 @@ def trainer(config):
     # create train-validation data loaders
     list_train_dirs = [
         os.path.join(data_root, "DLDP_") + str(i).zfill(3)
-        for i in range(1, 61)
+        for i in range(1, 11)
     ]
 
     list_val_dirs = [
         os.path.join(data_root, "DLDP_") + str(i).zfill(3)
-        for i in range(61, 81)
-        if i not in [63, 65, 67, 77]  # missing data
+        for i in range(11, 16)
     ]
 
     data_paths = {
@@ -64,7 +63,7 @@ def trainer(config):
     print("#model_params:", np.sum([len(p.flatten()) for p in model.parameters()]))
 
     # create the loss function
-    loss_function = torch.nn.L1Loss()
+    loss_function = torch.nn.MSELoss()
 
     # create the optimizer and the learning rate scheduler
     optimizer = torch.optim.Adam(
@@ -98,7 +97,7 @@ def trainer(config):
             output = model(input_.to(device))
 
             # Backward
-            output[mask == 0] = 0
+            #output[mask == 0] = 0
             loss = loss_function(output, target.to(device))
             loss.backward()
 
@@ -113,6 +112,12 @@ def trainer(config):
         wandb.log({"train/loss_epoch": epoch_loss})
         print(
             f"epoch {epoch + 1} average loss: {epoch_loss:.4f} time elapsed: {(time.time()-tic)/60:.2f} mins"
+        )
+        torch.save(
+            model.state_dict(),
+            os.path.join(
+                outpath + "/" + config["date"], "latest_model.pt"
+            ),
         )
 
         # validation
@@ -129,8 +134,7 @@ def trainer(config):
                     output = model(input_.to(device))
 
                     # Backward
-                    output[mask == 0] = 0
-
+                    #output[mask == 0] = 0
                     val_loss = loss_function(output, target.to(device))
                     val_loss_array.append(val_loss.item())
 
@@ -144,7 +148,7 @@ def trainer(config):
                     torch.save(
                         model.state_dict(),
                         os.path.join(
-                            outpath + "/" + config["date"], "unet_dose_prediction.pt"
+                            outpath + "/" + config["date"], "best_val_model.pt"
                         ),
                     )
                     print("saved new best metric model")
@@ -177,11 +181,11 @@ def main():
         "num_workers": 4,
         "seed": 1,
         # train settings
-        "num_epochs": 100,
+        "num_epochs": 150,
         "val_interval": 2,  # check validation score after n epochs
         "train_batch_size": 2,
         "val_batch_size": 1,
-        "learning_rate": 1e-4,
+        "learning_rate": 1e-2,
         "lr_scheduler": "stepLR",  # just to keep track
         "lr_decay_step_size": 10,
         "lr_gamma": 0.5,

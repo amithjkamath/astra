@@ -158,7 +158,7 @@ def read_image_data(patient_dir: str, prefix: str = ""):
                 dict_images[structure_name]
             )[np.newaxis, :, :, :]
         else:
-            dict_images[structure_name] = np.zeros((1, 128, 128, 128), np.uint8)
+            dict_images[structure_name] = np.zeros((1, 32, 32, 32), np.uint8)
 
     return dict_images
 
