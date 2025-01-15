@@ -31,7 +31,7 @@ warnings.filterwarnings("ignore")
 
 
 def trainer(args):
-    data_root = "/Users/amithkamath/data/DLDP/ground_truth_small"
+    repo_root = "/home/akamath/Documents/astra/"
 
     logging.basicConfig(stream=sys.stdout, level=logging.INFO)
     out_path = os.path.join(args.exp_dir, args.exp)
@@ -45,16 +45,16 @@ def trainer(args):
     )  # create a date directory within the output directory for storing train logs
 
     # create train-validation data loaders
+    data_root = "data/processed-to-train/ISAS_GBM_"
+
     list_eval_dirs = [
-        os.path.join(data_root, "DLDP_") + str(i).zfill(3)
-        for i in range(61, 81)
-        if i not in [63, 65, 67, 77]  # missing data
+        os.path.join(repo_root, data_root) + str(i).zfill(3)
+        for i in range(61, 70)
     ]
 
     list_train_dirs = [
-        os.path.join(data_root, "DLDP_") + str(i).zfill(3)
+        os.path.join(repo_root, data_root) + str(i).zfill(3)
         for i in range(1, 61)
-        if i != 40
     ]
 
     data_paths = {
@@ -66,9 +66,9 @@ def trainer(args):
         data_paths,
         train_bs=2,
         val_bs=1,
-        train_num_samples_per_epoch=240,
-        val_num_samples_per_epoch=80,
-        num_works=4,
+        train_num_samples_per_epoch=1000,
+        val_num_samples_per_epoch=1,
+        num_workers=4,
     )
 
     # create the model
@@ -183,12 +183,12 @@ def main():
 
     # train params
     parser.add_argument(
-        "--num_epochs", default=50, type=int, help="number of train epochs"
+        "--num_epochs", default=100, type=int, help="number of train epochs"
     )
 
     parser.add_argument(
         "--exp_dir",
-        default="/Users/amithkamath/repo/astra/output",
+        default="/home/akamath/Documents/astra/output",
         type=Path,
         help="output directory to save train logs",
     )
@@ -200,7 +200,7 @@ def main():
         help="experiment name (a folder will be created with this name to store the results)",
     )
 
-    parser.add_argument("--lr", default=0.001, type=float, help="learning rate")
+    parser.add_argument("--lr", default=0.0001, type=float, help="learning rate")
 
     parser.add_argument(
         "--lr_step_size",

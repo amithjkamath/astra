@@ -19,7 +19,7 @@ warnings.filterwarnings("ignore")
 
 
 def trainer(config):
-    data_root = "/Users/amithkamath/data/DLDP/processed-to-train"
+    data_root = "/home/akamath/Documents/repo/astra/data/ground_truth_small"
     logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
     outpath = os.path.join(config["exp_directory"], config["exp_name"])
@@ -33,13 +33,12 @@ def trainer(config):
 
     # create train-validation data loaders
     list_train_dirs = [
-        os.path.join(data_root, "ISAS_GBM_") + str(i).zfill(3)
+        os.path.join(data_root, "DLDP_") + str(i).zfill(3)
         for i in range(1, 61)
-        if i != 40
     ]
 
     list_val_dirs = [
-        os.path.join(data_root, "ISAS_GBM_") + str(i).zfill(3)
+        os.path.join(data_root, "DLDP_") + str(i).zfill(3)
         for i in range(61, 81)
         if i not in [63, 65, 67, 77]  # missing data
     ]
@@ -156,7 +155,7 @@ def trainer(config):
                 )
 
     wandb.log(
-        {"best_dice_metric": best_metric, "best_metric_epoch": best_metric_epoch,}
+        {"best_metric": best_metric, "best_metric_epoch": best_metric_epoch,}
     )
     print(
         f"train completed, best_metric: {best_metric:.4f} at epoch: {best_metric_epoch}"
@@ -170,15 +169,15 @@ def main():
 
     config = {
         # experiment settings
-        "exp_directory": "/Users/amithkamath/repo/personal/astra/output-v2",
-        "exp_name": "basic-unet-test-v2",
+        "exp_directory": "/home/akamath/Documents/repo/astra/output-v2",
+        "exp_name": "basic-unet-test-0125",
         "date": date,
         # data
         "cache_rate": 1.0,
         "num_workers": 4,
         "seed": 1,
         # train settings
-        "num_epochs": 5,
+        "num_epochs": 100,
         "val_interval": 2,  # check validation score after n epochs
         "train_batch_size": 2,
         "val_batch_size": 1,
@@ -199,7 +198,7 @@ def main():
 
     project_name = date + "-seed-" + str(config["seed"])
     wandb.init(
-        project="BasicUNet-dose-prediction-v2", name=project_name, config=config,
+        project="BasicUNet-small-dose-prediction", name=project_name, config=config,
     )
     trainer(config)
     wandb.finish()

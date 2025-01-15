@@ -2,9 +2,9 @@ import os
 import numpy as np
 import torch
 import warnings
-import matplotlib.pyplot as plt
+import SimpleITK as sitk
 
-from astra.data.utils import read_image_data, concatenate
+from astra.data.utils import read_image_data, concatenate, copy_image_info
 from astra.model.CascadedUNet import CascadedUNet
 
 from pathlib import Path
@@ -16,14 +16,14 @@ warnings.filterwarnings("ignore")
 def main():
     print_config()
 
-    repo_root = "/Users/amithkamath/repo/astra/"
-    data_root = "/Users/amithkamath/data/DLDP/"
-    data_path = os.path.join(data_root, "ground_truth_small")
+    repo_root = "/home/akamath/Documents/astra/"
+    data_root = "/home/akamath/Documents/astra/data/processed-to-train/"
+    data_path = os.path.join(data_root)
     out_path = os.path.join(repo_root, "monai_unet_results")
     Path(out_path).mkdir(parents=True, exist_ok=True)
 
     list_test_dirs = [
-        os.path.join(data_path, "DLDP_") + str(i).zfill(3) for i in range(81, 91)
+        os.path.join(data_path, "ISAS_GBM_") + str(i).zfill(3) for i in range(81, 91)
     ]
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -40,14 +40,13 @@ def main():
     checkpoint = torch.load(
         os.path.join(
             repo_root,
-            "output/monai_testing/11-29-23_13-21/cascaded_unet_dose_prediction.pt",
+            "output/monai_testing/01-12-24_17-50/cascaded_unet_dose_prediction.pt",
         ),
         map_location=device,
     )
     model.load_state_dict(checkpoint)
 
     with torch.no_grad():
-        step = 1
         for test_dir in list_test_dirs:
             test_id = test_dir.split("/")[-1]
             dict_images = read_image_data(test_dir)
@@ -59,7 +58,9 @@ def main():
 
             # forward pass
             input_t = torch.from_numpy(input)
-            prediction = model(input_t)
+            prediction = model(input_t.to(device))
+
+            prediction = prediction.cpu()
 
             # save volume slices according to volume name given by fname
             prediction[
@@ -67,24 +68,15 @@ def main():
             ] = 0
             prediction = 70.0 * prediction
 
-            print(step, "   volume out of", len(list_test_dirs), "done.", "\r", end="")
-            step += 1
-
-            slice = 16
-            # visualize
-            fig = plt.figure(figsize=(14, 7))
-            plt.title(f"Subject: {test_id}")
-            ax = fig.add_subplot(121)
-            ax.imshow(gt_dose[0, 0, slice, :, :], "gray")
-            ax.set_title("ground truth dose")
-            ax.axis("off")
-
-            ax = fig.add_subplot(122)
-            ax.imshow(prediction[0, 0, slice, :, :], "gray")
-            ax.set_title("predicted dose")
-            ax.axis("off")
-
-            plt.show()
+            # Save prediction to nii image
+            template_nii = sitk.ReadImage(test_dir + "/Dose.nii.gz")
+            prediction_nii = sitk.GetImageFromArray(prediction[0, 0, :, :, :])
+            prediction_nii = copy_image_info(template_nii, prediction_nii)
+            if not os.path.exists(test_dir + "/" + test_id):
+                os.mkdir(test_dir + "/" + test_id)
+            sitk.WriteImage(
+                prediction_nii, test_dir + "/" + test_id + "/Predicted_Dose.nii.gz"
+            )
 
 
 if __name__ == "__main__":

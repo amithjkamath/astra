@@ -15,19 +15,18 @@ from astra.model.loss import Loss
 
 if __name__ == "__main__":
 
-    repo_root = "/Users/amithkamath/repo/astra/"
-    data_root = "/Users/amithkamath/data/DLDP/ground_truth_small"
-    model_dir = os.path.join(repo_root, "models", "dldp-small-unet")
+    repo_root = "/home/akamath/Documents/astra"
+    data_root = "/home/akamath/Documents/astra/data/processed-to-train"
+    model_dir = os.path.join(repo_root, "models", "dldp-c3dunet-isometric-3")
     os.makedirs(model_dir, exist_ok=True)
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--batch_size", type=int, default=2, help="batch size for train (default: 2)"
-    )
+        "--batch_size", type=int, default=2)
     parser.add_argument(
         "--list_GPU_ids",
         nargs="+",
         type=int,
-        default=[-1],
+        default=[0],
         help="list_GPU_ids for train (default: [-1] for CPU)",
     )
     parser.add_argument(
@@ -51,13 +50,13 @@ if __name__ == "__main__":
     trainer.setting.max_iter = args.max_iter
 
     list_eval_dirs = [
-        os.path.join(data_root, "DLDP_") + str(i).zfill(3)
-        for i in range(61, 80)
+        os.path.join(data_root, "ISAS_GBM_") + str(i).zfill(3)
+        for i in range(62, 70)
         if i not in [63, 65, 67, 77]  # missing data
     ]
 
     list_train_dirs = [
-        os.path.join(data_root, "DLDP_") + str(i).zfill(3)
+        os.path.join(data_root, "ISAS_GBM_") + str(i).zfill(3)
         for i in range(1, 62)
         if i != 40  # missing data
     ]
@@ -73,7 +72,7 @@ if __name__ == "__main__":
         val_bs=1,
         train_num_samples_per_epoch=args.batch_size * 500,  # 500 iterations per epoch
         val_num_samples_per_epoch=1,
-        num_works=4,
+        num_workers=4,
     )
 
     trainer.setting.eps_train_loss = 0.01
